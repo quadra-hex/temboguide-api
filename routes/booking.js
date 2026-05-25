@@ -1,0 +1,19 @@
+const router = require('express').Router()
+const ctrl   = require('../controllers/bookingController')
+const { authUser, authProvider } = require('../middleware/auth')
+
+// Tourist routes
+router.get('/services',          ctrl.getServices)
+router.get('/services/:id',      ctrl.getServiceById)
+router.post('/create',           authUser, ctrl.createBooking)
+router.get('/my',                authUser, ctrl.getMyBookings)
+router.delete('/:id/cancel',     authUser, ctrl.cancelBooking)
+router.post('/:id/review',       authUser, ctrl.leaveReview)
+
+// Provider routes
+router.get('/provider',          authProvider, ctrl.getProviderBookings)
+router.post('/:id/confirm',      authProvider, ctrl.confirmBooking)
+router.post('/:id/reject',       authProvider, ctrl.rejectBooking)
+router.post('/:id/complete',     authProvider, ctrl.completeBooking)
+
+module.exports = router
