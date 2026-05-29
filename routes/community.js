@@ -15,7 +15,7 @@ router.post('/stories',            authAny, uploadImage.single('media'), ctrl.cr
 router.post('/stories/:id/view',   authAny, ctrl.viewStory);
 
 // ADD THIS ROUTE:
-const { User } = require('../models/user'); // <-- adjust import to your app's user model
+const { User } = require('../models/User'); // <-- adjust import to your app's user model
 
 router.get('/members', authAny, async (req, res) => {
   try {

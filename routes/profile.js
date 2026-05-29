@@ -2,7 +2,7 @@ const express = require('express')
 const router = express.Router()
 
 // ✅ FIXED: Changed 'User' to lowercase 'user' to match your actual filename on Linux
-const User = require('../models/user') 
+const User = require('../models/User') 
 const Provider = require('../models/Provider')
 const { authUser, authProvider } = require('../middleware/auth')
 
