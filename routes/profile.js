@@ -1,7 +1,8 @@
 const express = require('express')
-app.set('trust proxy', 1); // <-- Add this line!
 const router = express.Router()
-const User = require('../models/User')
+
+// ✅ FIXED: Changed 'User' to lowercase 'user' to match your actual filename on Linux
+const User = require('../models/user') 
 const Provider = require('../models/Provider')
 const { authUser, authProvider } = require('../middleware/auth')
 

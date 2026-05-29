@@ -7,7 +7,7 @@ const cors      = require('cors')
 const cron      = require('node-cron')
 const connectDB = require('./config/db')
 
-const profileRoutes = require('./routes/profile')
+const profileRoutes = require('./routes/profile') // Imported correctly!
 
 const {
   helmetMiddleware, apiLimiter, authLimiter,
@@ -15,7 +15,7 @@ const {
 } = require('./middleware/errorHandler')
 
 const app    = express()
-app.set('trust proxy', 1); // <-- Add this line!
+app.set('trust proxy', 1); // ✅ PERFECT! Safely placed here.
 const server = http.createServer(app)
 const io     = new Server(server, {
   cors: { origin: process.env.CLIENT_URL || '*', methods: ['GET','POST'] },
@@ -55,6 +55,7 @@ app.get('/api/health', (req, res) => res.json({
 
 // ── Routes ────────────────────────────────────────────────────
 app.use('/api', require('./routes/index'))
+app.use('/api/profile', profileRoutes) // ✅ FIXED: Bound the profile routes to the Express pipeline!
 
 // ── 404 + Error handler ───────────────────────────────────────
 app.use(notFound)
@@ -144,8 +145,8 @@ cron.schedule('0 0 * * *', async () => {
   }
 })
 
-// ── Start server ──────────────────────────────────────────────
-server.listen(PORT, () => {
+// ── Start server — force global 0.0.0.0 binding for container stability ──
+server.listen(PORT, '0.0.0.0', () => {
   console.log(`\n🌿  TemboGuide API running`)
   console.log(`📡  http://localhost:${PORT}`)
   console.log(`🔍  Health: http://localhost:${PORT}/api/health\n`)
