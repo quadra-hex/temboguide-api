@@ -1,6 +1,6 @@
 const Post  = require('../models/Post')
 const Story = require('../models/Story')
-const User = require('../models/user');// 🔥 Added this so .find() won't crash!
+const User  = require('../models/User') // 🔥 Added this so .find() won't crash!
 const { uploadToCloudinary } = require('../config/cloudinary')
 
 // ── MEMBERS DIRECTORY ──────────────────────────────────────────
