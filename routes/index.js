@@ -1,4 +1,5 @@
 const express = require('express')
+app.set('trust proxy', 1); // <-- Add this line!
 const router  = express.Router()
 
 router.use('/auth',      require('./auth'))

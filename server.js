@@ -15,6 +15,7 @@ const {
 } = require('./middleware/errorHandler')
 
 const app    = express()
+app.set('trust proxy', 1); // <-- Add this line!
 const server = http.createServer(app)
 const io     = new Server(server, {
   cors: { origin: process.env.CLIENT_URL || '*', methods: ['GET','POST'] },

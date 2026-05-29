@@ -14,22 +14,7 @@ router.get('/stories',             ctrl.getStories);
 router.post('/stories',            authAny, uploadImage.single('media'), ctrl.createStory);
 router.post('/stories/:id/view',   authAny, ctrl.viewStory);
 
-// ADD THIS ROUTE:
-const { User } = require('../models/User'); // <-- adjust import to your app's user model
-
-router.get('/members', authAny, async (req, res) => {
-  try {
-    // Exclude self from results
-    const myId = req.user._id.toString();
-    const members = await User.find(
-      { _id: { $ne: myId } },
-      'name avatar bio isVerified' // select fields as needed
-    );
-    res.json({ success: true, members });
-  } catch (err) {
-    console.error('community/members error:', err);
-    res.status(500).json({ success: false, message: err.message || 'Server error' });
-  }
-});
+// ✅ Clean and linked directly to your controller function
+router.get('/members',             authAny, ctrl.getMembers);
 
 module.exports = router;

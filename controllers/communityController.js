@@ -1,6 +1,28 @@
 const Post  = require('../models/Post')
 const Story = require('../models/Story')
+const User = require('../models/user');// 🔥 Added this so .find() won't crash!
 const { uploadToCloudinary } = require('../config/cloudinary')
+
+// ── MEMBERS DIRECTORY ──────────────────────────────────────────
+
+const getMembers = async (req, res, next) => {
+  try {
+    // 1. Get the current logged-in user's ID
+    const myId = req.user?._id || req.provider?._id;
+
+    if (!myId) {
+      return res.status(401).json({ success: false, message: 'Unauthorized.' });
+    }
+
+    // 2. Find all other users except yourself so you can start a chat
+    const members = await User.find(
+      { _id: { $ne: myId } },
+      'name avatar bio isVerified' // Only return fields needed for a user-list UI card
+    ).sort({ name: 1 }); // Sorted alphabetically
+
+    res.json({ success: true, count: members.length, members });
+  } catch (err) { next(err) }
+}
 
 // ── POSTS ──────────────────────────────────────────────────────
 
@@ -121,7 +143,6 @@ const createStory = async (req, res, next) => {
     const authorModel = req.actorModel
     const isVideo     = req.file.mimetype.startsWith('video')
 
-    // ✅ Upload to Cloudinary first
     const result = await uploadToCloudinary(
       req.file.buffer,
       'stories',
@@ -133,7 +154,7 @@ const createStory = async (req, res, next) => {
     const story = await Story.create({
       author:    authorId,
       authorModel,
-      mediaUrl:  result.secure_url,   // ✅ now has the URL
+      mediaUrl:  result.secure_url,
       mediaType: isVideo ? 'video' : 'image',
       caption:   req.body.caption || '',
       expiresAt,
@@ -151,6 +172,7 @@ const viewStory = async (req, res, next) => {
 }
 
 module.exports = {
+  getMembers, // 🔥 Added here
   getPosts, createPost, likePost, addComment, sharePost,
   deletePost, reportPost, getStories, createStory, viewStory,
 }

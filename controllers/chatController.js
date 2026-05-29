@@ -16,31 +16,41 @@ const getChats = async (req, res, next) => {
   } catch (err) { next(err) }
 }
 
-// POST /api/chat/start — start or get existing conversation
+/// POST /api/chat/start — start or get existing conversation
 const startChat = async (req, res, next) => {
   try {
     const { participantId, participantModel } = req.body
     const myId    = req.user?._id || req.provider?._id
     const myModel = req.actorModel
 
-    // Check if chat already exists
+    if (!participantId || !participantModel) {
+      return res.status(400).json({ success: false, message: 'Participant ID and Model type are required.' })
+    }
+
+    // ✅ FIXED: Using $all with $elemMatch guarantees it finds the EXACT private chat between you two
     const existing = await Chat.findOne({
-      $and: [
-        { 'participants.participant': myId },
-        { 'participants.participant': participantId },
-      ],
+      participants: {
+        $all: [
+          { $elemMatch: { participant: myId } },
+          { $elemMatch: { participant: participantId } }
+        ]
+      }
     }).populate({ path: 'participants.participant', select: 'name avatar businessName logo' })
 
+    // If chat already exists, return it so Flutter can load the conversation thread
     if (existing) return res.json({ success: true, chat: existing })
 
+    // If it doesn't exist, build a new chat room document
     const chat = await Chat.create({
       participants: [
         { participant: myId,          participantModel: myModel },
         { participant: participantId, participantModel },
       ],
     })
+    
     const populated = await Chat.findById(chat._id)
       .populate({ path: 'participants.participant', select: 'name avatar businessName logo' })
+      
     res.status(201).json({ success: true, chat: populated })
   } catch (err) { next(err) }
 }
